@@ -5,17 +5,17 @@ require 'rubygems'
 require 'mysql2'
 require '/home/pim/PS2weaponstats/dbdetails'
 
-class Array
-    def depth
-        map { |element| element.depth + 1 }.max
-    end
-end
-
-class Object
-    def depth
-        0
-    end
-end
+#class Array
+#    def depth
+#        map { |element| element.depth + 1 }.max
+#    end
+#end
+#
+#class Object
+#    def depth
+#        0
+#    end
+#end
 
 class PS2WeapStats
 
