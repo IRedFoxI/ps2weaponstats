@@ -1,0 +1,6 @@
+#!/usr/bin/ruby
+
+$dbhost = "host.name.of.your.db"
+$dbusername = "user.name.of.your.db"
+$dbpassword = "password.of.your.db"
+$dbdatabase = "name.of.your.db"
