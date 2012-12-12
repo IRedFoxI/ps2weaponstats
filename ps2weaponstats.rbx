@@ -4,18 +4,7 @@ require 'cgi'
 require 'rubygems'
 require 'mysql2'
 require '/home/pim/PS2weaponstats/dbdetails'
-
-#class Array
-#    def depth
-#        map { |element| element.depth + 1 }.max
-#    end
-#end
-#
-#class Object
-#    def depth
-#        0
-#    end
-#end
+require 'rfutils'
 
 class PS2WeapStats
 
@@ -33,13 +22,14 @@ class PS2WeapStats
     def build_sql_query( weapons, states, firemodes )
         retval = ""
         retval << "SELECT "
-        retval << "WEAPON_NAME, FireModes.REFIRE_TIME_MS, PROJECTILE_SPEED_OVERRIDE, FireModes.RELOAD_TIME_MS, RELOAD_CHAMBER_TIME_MS, HEAD_SHOT_DAMAGE_MULTIPLIER, FireModes.`#*ID`, `*PLAYER_STATE`, PlayerStateProperties.MIN_CONE_OF_FIRE, MAX_CONE_OF_FIRE, COF_GROW_RATE, COF_RECOIL, COF_RECOVERY_RATE, COF_SCALAR_MOVING, COF_OVERRIDE, RECOIL_MAGNITUDE_MIN, RECOIL_MAGNITUDE_MAX, RECOIL_ANGLE_MIN, RECOIL_ANGLE_MAX, RECOIL_RECOVERY_DELAY_MS, RECOIL_RECOVERY_RATE, RECOIL_RECOVERY_ACCELERATION, RECOIL_SHOTS_AT_MIN_MAGNITUDE, RECOIL_MAX_TOTAL_MAGNITUDE, RECOIL_INCREASE, RECOIL_INCREASE_CROUCHED, RECOIL_FIRST_SHOT_MODIFIER, RECOIL_HORIZONTAL_TOLERANCE, RECOIL_HORIZONTAL_MIN, RECOIL_HORIZONTAL_MAX, TURN_MODIFIER, MOVEMENT_MODIFIER "
-        retval << "FROM ClientItemDatasheetData, FireGroups, FireModes, PlayerStateProperties "
+        retval << "WEAPON_NAME, 000_FireModes.REFIRE_TIME_MS, PROJECTILE_SPEED_OVERRIDE, 000_FireModes.RELOAD_TIME_MS, RELOAD_CHAMBER_TIME_MS, HEAD_SHOT_DAMAGE_MULTIPLIER, 000_FireModes.`#*ID`, `*PLAYER_STATE`, 000_PlayerStateProperties.MIN_CONE_OF_FIRE, MAX_CONE_OF_FIRE, COF_GROW_RATE, COF_RECOIL, COF_RECOVERY_RATE, COF_SCALAR_MOVING, COF_OVERRIDE, RECOIL_MAGNITUDE_MIN, RECOIL_MAGNITUDE_MAX, RECOIL_ANGLE_MIN, RECOIL_ANGLE_MAX, RECOIL_RECOVERY_DELAY_MS, RECOIL_RECOVERY_RATE, RECOIL_RECOVERY_ACCELERATION, RECOIL_SHOTS_AT_MIN_MAGNITUDE, RECOIL_MAX_TOTAL_MAGNITUDE, RECOIL_INCREASE, RECOIL_INCREASE_CROUCHED, RECOIL_FIRST_SHOT_MODIFIER, RECOIL_HORIZONTAL_TOLERANCE, RECOIL_HORIZONTAL_MIN, RECOIL_HORIZONTAL_MAX, TURN_MODIFIER, MOVEMENT_MODIFIER "
+        retval << "FROM 000_WeaponNames, 000_ClientItemDatasheetData, 000_FireGroups, 000_FireModes, 000_PlayerStateProperties "
         retval << "WHERE ( WEAPON_NAME='#{ weapons.join( "' OR WEAPON_NAME='" ) }' ) "
+        retval << "AND 000_WeaponNames.`#*ITEM_ID`=000_ClientItemDatasheetData.`#*ITEM_ID` "
         retval << "AND ( `*PLAYER_STATE`='#{ states.join( "' OR `*PLAYER_STATE`='" ) }' ) "
-        retval << "AND FireGroups.`#*ID`=FIRE_GROUP_ID "
-        retval << "AND ( FireModes.`#*ID`=#{firemodes.join( " OR FireModes.`#*ID`=" ) } ) "
-        retval << "AND PlayerStateProperties.`#*GROUP_ID`=PLAYER_STATE_GROUP_ID"
+        retval << "AND 000_FireGroups.`#*ID`=FIRE_GROUP_ID "
+        retval << "AND ( 000_FireModes.`#*ID`=#{firemodes.join( " OR 000_FireModes.`#*ID`=" ) } ) "
+        retval << "AND 000_PlayerStateProperties.`#*GROUP_ID`=PLAYER_STATE_GROUP_ID"
         return retval
     end
 
@@ -53,7 +43,7 @@ class PS2WeapStats
 
     def gen_output()
 
-        weaponsQueryResult = @client.query( "SELECT `WEAPON_NAME` FROM `ClientItemDatasheetData` WHERE `WEAPON_NAME`<>''" )
+        weaponsQueryResult = @client.query( "SELECT `WEAPON_NAME` FROM `000_WeaponNames` WHERE `WEAPON_NAME`<>''" )
         weapons = weaponsQueryResult.each( :as => :array ).flatten
 
         selectedWeapons = @cgi.params[ 'select_weapon' ].dup
@@ -72,7 +62,7 @@ class PS2WeapStats
             end
         end
 
-        statesQueryResult = @client.query( "SELECT DISTINCT `*PLAYER_STATE`  FROM `PlayerStateProperties` WHERE 1" )
+        statesQueryResult = @client.query( "SELECT DISTINCT `*PLAYER_STATE`  FROM `000_PlayerStateProperties` WHERE 1" )
         states = statesQueryResult.each( :as => :array ).flatten
         statesStrings = Hash[ "NONE" => "NONE", 0 => "Standing", 1 => "Crouching", 2 => "Moving", 3 => "Sprinting", 4 => "Jumping", 5 => "Crouched moving" ]
 
