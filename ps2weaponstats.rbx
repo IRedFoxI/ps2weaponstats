@@ -151,5 +151,5 @@ class PS2WeapStats
 
 end
 
-webpage = PS2WeapStats.new
-webpage.gen_output
+myPS2WeapStats = PS2WeapStats.new
+myPS2WeapStats.gen_output
