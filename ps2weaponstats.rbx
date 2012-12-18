@@ -4,7 +4,7 @@ require 'cgi'
 require 'rubygems'
 require 'mysql2'
 require '/home/pim/PS2weaponstats/dbdetails'
-require 'rfutils'
+#require 'rfutils'
 
 class PS2WeapStats
 
